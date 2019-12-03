@@ -9,6 +9,7 @@ import time
 from difflib import SequenceMatcher
 
 
+<<<<<<< HEAD
 
 
 
@@ -40,6 +41,22 @@ def pretty_print(logger, serializer_function=lambda obj: obj.__dict__):
 
 
 
+=======
+def pretty_print(logger, serializer_function=lambda obj: obj.__dict__):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            serializable_obj = func(*args, **kwargs)
+            try:
+                formatted_output = json.dumps(
+                    serializable_obj, indent=4, default=serializer_function)
+                print(formatted_output)
+            except TypeError as e:
+                logger.error("Type error encounter with message {}".format(e))
+                raise
+        return wrapper
+    return decorator
+>>>>>>> 8473db39e5ab0e582c5ae129551a7c0bfe6ebe88
 
 
 def timeit(logger):
@@ -116,6 +133,7 @@ class StringWrapper(object):
 
         return self._sensitivity_matching(self._value)
 
+<<<<<<< HEAD
 
 
     @Decorators.sensitivity_matching_meta_decorator()
@@ -144,4 +162,19 @@ class StringWrapper(object):
 
     def boolean_search(self, pattern, exact=False, threshold=None, reverse=None):
 
+=======
+    @Decorators.sensitivity_matching_meta_decorator()
+    def contains(self, pattern, reverse=False):
+        return (pattern in self.value) if not reverse else (self.value in pattern)
+
+    @Decorators.sensitivity_matching_meta_decorator()
+    def similarity_ratio(self, pattern):
+        return SequenceMatcher(None, self.value, pattern).ratio()
+
+    def similar_enough(self, pattern, threshold=None):
+        min_ratio =  threshold if threshold is not None else self.default_similarity_threshold
+        return self.similarity_ratio(pattern) > min_ratio
+
+    def boolean_search(self, pattern, exact=False, threshold=None, reverse=False):
+>>>>>>> 8473db39e5ab0e582c5ae129551a7c0bfe6ebe88
         return self.contains(pattern, reverse=reverse) if exact else self.similar_enough(pattern, threshold=threshold)
